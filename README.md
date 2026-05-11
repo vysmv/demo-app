@@ -1,1 +1,1 @@
-# snippetbox-public
+# demo-app
