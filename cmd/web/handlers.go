@@ -1,10 +1,13 @@
 package main
 
 import (
+    "errors"
     "fmt"
     "html/template" // New import
     "net/http"
     "strconv"
+
+    "github.com/vysmv/snippetbox-public/internal/models"
 )
 
 // Change the signature of the home handler so it is defined as a method against
@@ -30,8 +33,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-// Change the signature of the snippetView handler so it is defined as a method
-// against *application.
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
     id, err := strconv.Atoi(r.PathValue("id"))
     if err != nil || id < 1 {
@@ -39,7 +40,21 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+    // Use the SnippetModel's Get() method to retrieve the data for a
+    // specific record based on its ID. If no matching record is found,
+    // return a 404 Not Found response.
+    snippet, err := app.snippets.Get(id)
+    if err != nil {
+        if errors.Is(err, models.ErrNoRecord) {
+            http.NotFound(w, r)
+        } else {
+            app.serverError(w, r, err)
+        }
+        return
+    }
+
+    // Write the snippet data as a plain-text HTTP response body.
+    fmt.Fprintf(w, "%+v", snippet)
 }
 
 // Change the signature of the snippetCreate handler so it is defined as a method
