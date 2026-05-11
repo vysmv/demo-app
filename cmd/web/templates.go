@@ -13,6 +13,7 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+	Form        any
 }
 
 // Initialize a template.FuncMap value and store it in a global variable. This is
